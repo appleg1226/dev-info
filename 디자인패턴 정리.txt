@@ -1,0 +1,242 @@
+1. Strategy Pattern
+여러 알고리즘을 하나의 추상적인 접근점을 만들어 접근 점에서 서로 교환 가능하도록 하는 패턴
+: 한 객체가 어떤 다수의 비슷한 클래스들을 사용하고자 할 때, 그 클래스들의 인터페이스를 자신의 객체에 구현한 다음,
+ Setter를 이용하여 그것을 구현. 어렵긴 한데, 어떤 기능을 쓸 때 그 기능 자체를 조립하여서 사용하는 패턴으로 이해하면 될 듯. 
+ 하나의 객체에 이것저것 끼워넣지 않도록 하는 좋은 패턴이다.
+
+public UserClass{
+
+    private Weapon weapon;
+
+    public void setWeapon(Weapon weapon){
+        this.weapon = weapon;
+    }
+
+    public void attack(){
+        weapon.attack();
+    }
+}
+
+=================================================================================
+2. Adapter Pattern
+두 다른 인터페이스를 호환시켜주는 패턴이다. 아래의 예를 보면 두 인터페이스가 다른데 대충 하나의 인터페이스로 된다.
+비슷한 기능을 가진 두 인터페이스를 같이 쓰고 싶을 때 사용해도 좋을 듯 하다.
+주로 이전에 쓰던 코드들을 새로 통합하거나, 같이 쓰고 싶을 때 사용하는 패턴이다.
+
+public interface Game{
+    public void start();
+    public void end();'
+}
+
+public interface Music{
+    public void play();
+    public void end();
+}
+
+public class GameAdapter implements Music{
+    Game game;
+    // 생성자 생략
+
+    @Override
+    public void play(){
+        game.start();
+    }
+    @Override
+    public void end(){
+        game.end();
+    }
+
+}
+=================================================================================
+3. Template Method Pattern
+상속을 통해 슈퍼클래스의 기능을 확장할 때 사용하는 대표적인 방법.
+변하지 않는 것은 슈퍼 클래스에 만들고, 자주 변경되는 것은 서브클래스에 만든다.
+비슷한 기능을 가진 클래스들에서 같은 기능들을 모아서 한번에 실행시켜주는 메소드를 만든다.
+그리고 그 각각의 메소드들은 오버라이드하든지 말든지 해서 여튼 조립을 시키는 것이다.
+딱 보기에도 템플릿을 통해서 확장시킬 수 있다는 점이 쓸만한 것 같다.
+코드를 줄이고 싶다면, 이 방법을 찾아서 사용해볼 것.
+
+public abstract class Cellphone{
+
+    void call(){
+        touchButton();
+        openPhone();
+    }
+
+    abstract void touchButton();
+    abstract void openPhone();
+}
+=================================================================================
+4. Factory Method Pattern
+객체를 만들어 낼 때, 정의는 상위클래스로 하고, 반환은 하위 클래스로 한다.
+객체를 생성하기 위해 인터페이스를 정의하지만, 어떤 클래스의 인스턴스를 생성할 지는 서브클래스가 결정한다.
+팩토리를 인터페이스로 만들어서 구현시킬 수도 있고, 그냥 그대로 사용하게할 수도 있다.
+
+class A extends Product{
+    private String id = "a";
+}
+
+class B extends Product{
+    private String id = "b";
+}
+
+class Factory{
+    Product create(Product p){
+        if(p instance of A){
+             return new A;
+        } else {
+             return new B; 
+        }
+    }
+}
+=================================================================================
+5. Singleton Pattern
+하나의 인스턴스만 만들어서 돌려쓰는 것이다.
+아래를 보면 주요 메서드는 static으로 만들어서 사용하고, 생성자는 private이다.
+singleton 인스턴스를 받는 메서드를 static으로 만들고, 이 때 생성해야할지 말지 결정하게 된다.
+
+public vlass SystemSpeaker {
+    static private SystemSpeaker instance;
+    private int volume;
+
+    private SystemSpeaker(){
+        volume = 5;
+    }
+   
+    public static SystemSpeaker getInstance(){
+        if(instance == null){
+            instance = new SystemSpeake();
+        }
+        return instance;
+    }
+}
+=================================================================================
+6. Prototype Pattern
+객체를 등록해준 뒤 다시 만들 필요가 없이, 클래스에 clonable을 선언해서 복사해서 사용하는 패턴.
+새로운 객체를 만들 필요가 없다는 것은 동일하다.
+팩토리와 다른 점은, 팩토리는 new 선언을 해서 반환하는 한편, prototype은 clone을 해서 반환한다.
+=================================================================================
+7. Builder Pattern
+이건 특별하게 설명할 필요가 없을듯. 롬복에서 편하게 사용 중이다.
+=================================================================================
+8. Abstract Factory Method Pattern(4번과 비교)
+4번과 다르게, 각 클래스별로 팩토리 메서드를 쪼개서 사용하는 패턴이다.
+class A extends Product{
+    private String id = "a";
+}
+
+class B extends Product{
+    private String id = "b";
+}
+
+class ImplementedAFactory implements Factory{
+    @Override
+    Product create(Product p){
+        return new A;
+    }
+}
+
+class ImplementedBFactory implements Factory{
+    @Override
+    Product create(Product p){
+        return new B;
+    }
+}
+=================================================================================
+9. Bridge Pattern
+기능과 구현을 완전히 분리하고 싶을 때 사용하는 방법이다.
+아래처럼 클래스 A는 틀만 제공해주고, 구체적인 구현은 B에 다 있다.
+그리고 클래스A든, B든 확장시켜서 쓰면 된다.
+여기에서 B가 브릿지 역할을 해서 브릿지 패턴인듯.
+
+class A {
+    private B interfaceB;
+
+    public void doSomething(){
+        interfaceB.doWhat();
+    }
+}
+
+interface B{
+
+}
+
+=================================================================================
+10. Composite Pattern
+하나의 인터페이스가 있고, 그것을 구현하는 여러 클래스가 있는데,
+여기에서 하나의 클래스가 다른 클래스를 리스트로 관리하는 그런 재미있는 방식이다.
+계층 관계를 표현할 때 유용할 것 같다.
+
+interface A
+
+class B implements A
+class C implements A
+class D implements A
+
+class E implements A{
+    private List<A> aList;
+    public void add(A a);
+    public void delete(String name);
+}
+
+=================================================================================
+11. Decorator Pattern
+이것도 위엣것 처럼 하나의 인터페이스를 여러 개가 구현한다는 것은 똑같다.
+그러나 이건 '기능을 통합'하는 방법론이다.
+
+interface A
+
+class B implements A
+class C implements B
+
+class ADecorator implements A
+    class Deco1 extends aDecorator
+    class Deco2 extends aDecorator
+    class Deco3 extends aDecorator
+
+각 데코레이터 클래스들은 앞의 클래스B나 클래스C를 생성자로 받는다.
+그래서 그 B나 C들의 기능을 자신들 각자의 특성화된 기능과 통합시키는 것이다.
+
+A newAWithTwoFunction = new  Deco1(new B());
+
+위의 것을 보면, A로 선언을 했지만 실질적인 구현은 Deco1의 기능과 B의 기능이 합쳐진 것을 볼 수 있다.
+이 패턴은 생소하지만 이런 생각을 할 수 있구나라는 생각이 들어서 재미있다.
+
+다수의 클래스들이 존재하고, 그 클래스들에 추가기능도 여러 가지가 필요할 때, 맞춰서 끼워 놓는 퍼즐같은 느낌이 든다.
+
+=================================================================================
+12. Visitor Pattern
+
+
+=================================================================================
+13. Chain of Responsibility Pattern
+ 
+
+=================================================================================
+14. Facade Pattern
+
+
+=================================================================================
+15. Observer Pattern
+
+
+=================================================================================
+16. Memento Pattern
+
+
+=================================================================================
+17. Flyweight Pattern
+
+
+=================================================================================
+18. Proxy Pattern
+
+
+=================================================================================
+19. Command Pattern
+
+
+
+
+
+
