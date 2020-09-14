@@ -58,13 +58,14 @@ public class GameAdapter implements Music{
 
 public abstract class Cellphone{
 
-    void call(){
+    void call(){                         // 이건 이미 구현됨(template)
+        print("called");
         touchButton();
         openPhone();
     }
 
-    abstract void touchButton();
-    abstract void openPhone();
+    abstract void touchButton();   // 자식이 구현. 이게 조립할 블럭
+    abstract void openPhone();    // 자식이 구현. 이게 조립할 블럭
 }
 =================================================================================
 4. Factory Method Pattern
@@ -207,36 +208,214 @@ A newAWithTwoFunction = new  Deco1(new B());
 =================================================================================
 12. Visitor Pattern
 
+아래 예시에서 A는 B라는 기능을 사용하는 클래스이다.
+원래는 A 안에 B라는 기능들을 넣어서 구현하고는 하지만, 
+아래의 예시는 B라는 기능을 따로 구현해서 넣는다.
 
+interface A
+class A1 implements A
+class A2 implements A
+
+interface B
+class B1 implements B
+class B2 implements B
+
+---
+
+A aClassInstance = new A1();
+B bClassInstance1 = new B1();
+B bClassInstance2 = new B2();
+
+aClassInstance.doSomething(bClassInstance1);
+aClassInstance.doSomething(bClassInstance2);
+
+위의 코드를 보면서 이해하는 것이 빠를 것 같다.
+A클래스는 B클래스를 사용해야할 일이 있다. 
+이 때 doSomething 내부는 아마도 이렇게 생겼을 것이다
+
+public void doSomething(B bInstance){
+    bInstance.doSomething2(this);
+}
+
+그리고 저 doSomething2는 override로 이런 식으로 구현하게 된다.
+public void doSomething2(A1 a);
+public void doSomething2(A2 a);
+
+이렇게 만들면 B에 대한 추가가 조금 용이해지는 것 같다.
+A에다가 기능을 추가하려면 A1, A2 만약 더 있다면, A10까지 A 클래스에 구현해야 하는데,
+이걸 B로 위임하는 것이다.
+
+그냥 A에는 구조, B에는 기능을 나눠서 구현하는 디자인 패턴의 전형적인 구현이라고 볼 수도 있겠다.
+핵심에는 메서드 오버로딩이 있고.
 =================================================================================
 13. Chain of Responsibility Pattern
- 
+이건 연결리스트 마냥 오브젝트들을 연결해 놓는 방식이다.
+interface A, class A1, A2, A3 implements A
+A a1 = new A1()
+A a2 = new A2()
+A a3 = new A3()
+a1.chain(a2);
+a2.chain(a3);
 
+위처럼 체인을 걸어 놓은 다음, 내부 로직상 넘겨야할 조건이 있다면
+다음 객체로 행동을 전가할 수가 있다.
+사용할 방법이 크게 생각나지는 않지만, 예시에서는 다음과 같이 한다.
+일정 볼트가 주어졌을 때, 경고/위험/심각 단계의 클래스들을 만들어놓고,
+해당 기준을 넘어가면 다음 클래스로 넘기는 그런 식으로 구성한다.
+크게 실용적인 상황은 안 나올 것 같지만, 알아두면 언젠가 유용하게 쓸 수 있을 것 같다.
 =================================================================================
 14. Facade Pattern
+Facade는 '건물의 정면'을 의미하는 프랑스어이다.
+공부해보니 생각한 것보다 쉬운 개념이다.
+여러 클래스의 기능들을 사용하려 할 때, 그 클래스들을 하나하나 만들어서 사용하는게 아니라
+그냥 생성자로 때려 넣는 다소 무식하다고 느껴지는 방식이다.(물론 class 자체를 포함은 안 한다)
 
+class A, class B, class C, class D 가 있을 때
+class 통합{
+    private A a;
+    ... private D d;
+
+    public void doSomething(){
+        a.do1();
+        b.do2();
+        c.do3();
+    }
+}
+
+흠.... 그냥 코드가 깔끔해지긴 할 것 같다.
 
 =================================================================================
 15. Observer Pattern
-
+정말 중요한 패턴이 나왔다.
+리액티브 스트림스 표준에도 등장하는 그 패턴...
+observer - subject의 관계는 리액티브에서 Publisher - Subsriber로 이어진다.
+즉 subject(subscription)의 변경을 observer(publisher)가 받아들이는 그런 방식이다.
+한쪽에서 한쪽으로 어떤 것을 보낸다는 개념 자체가 굉장히 핵심적인 기능인데다가
+리액티브도 이 방식을 사용하고 있으니 얼마나 중요한 지 알 수 있다.
 
 =================================================================================
 16. Memento Pattern
+데이터 백업 전략이라고 간단하게 부를 수 있는 패턴이다.
+class Data : 데이터 저장 클래스, 메멘토 생성 / 복원 메서드 보유
+class Memento : 데이터와 똑같이 생긴 클래스 
+class CareTaker : 스택 자료구조를 가지고 있는 자료보관 클래스.
 
+Data data = new Data();
+CareTaker care = new CareTaker();
+care.push(data.createMemento());
+이런 식으로 복제본을 저장한다.
+
+Memento result = care.pop();
+data.restoreMemento(result);
+이런 식으로 스택에서 빼서 복구할 수 있다.
 
 =================================================================================
 17. Flyweight Pattern
+객체 관리용 객체라고 간단하게 부르면 될 것 같다.
+Flyweight flyweight = new Flyweight();
+flyweight.getSubject("a");    // 이 단계에서 flyweight에 없으니 새로 a가 들어간 subject를 만들어 저장.
+flyweight.getSubject("a");    // 이미 있으니 그냥 넘긴다.
 
+내부적으로 중복검사 등의 작업을 시행한다.
+자원관리 코스트가 큰 상황에 적용하면 좋을 듯하다.
 
 =================================================================================
 18. Proxy Pattern
+프록시는 '대리'한다는 뉘앙스로 참 자주 듣는 이름이다.
+뭘 대신 해준다는 느낌이 크고, 굉장히 자주 사용되는 기술이다.
+
+interface A
+class A1 implements A          // 핵심 기능 구현
+class ProxyA implements A     // 체크 기능 구현
+---
+ProxyA proxyInstance = new ProxyA();
+proxyInstance.doA();  // proxy 자체 메서드 실행
+proxyInstance.doB();  // proxy 자체 메서드 실행
+proxyInstance.doC();  // A1 메서드 실행
+
+위를 보면 메서드가 세 개가 있는데,
+doA, doB는 proxy에서 구현해도 되는 조건 체크 관련 메서드이며
+doC는 실질적으로 A1에서 구현하고 있는 핵심 기능 메서드이다.
+
+이걸 프록시 클래스가 하는지, 핵심 기능 클래스가 하는지 우리는 모른다.
+
+보통 인스턴스화하는데 비용이 많이드는 핵심 클래스가 있다면 자잘한 작업은 프록시에서 처리하고,
+나머지 핵심 기능 인스턴스는 필요할 때마다 만드는 방식이 좋을 수 있다.
+
+또한 핵심 클래스에 접근을 통제하고 싶을 때도 사용 가능하며,
+핵심 클래스가 로컬이 아닌 remote에 존재하는 경우에도 적용을 생각해볼 수 있다.
 
 
 =================================================================================
 19. Command Pattern
 
+interface A
+class A1 implements A
 
+class B{
+    setA();
+    dosomething(){
+        A.doSomething2();
+    }
+}
 
+A aClass = new A();
+B bClass = new B();
+b.set(A)
+b.doWithA();
 
+클래스 B는 A를 쓰는데 setA를 호출해서 등록한 다음, 사용하는 방식이다.
+자바에서 Thread를 사용하는 방식과 같다.
+runnable 인터페이스를 구현한 클래스를 받아서 사용하니까 같다고 볼 수 있겠다.
+간단.
 
+=================================================================================
+20. State Pattern
+PowerState의 구현함수가 on, off, saving 세 가지가 있다고 할 때
+다음의 코드를 보면 어떻게 사용하는지 대충 알 듯 하다.
+세 가지 상태를 직접 분기로 구현하기보다, 상속을 이용하여 구현하는 방법으로
+간단한 디자인패턴 방식이다.
 
+public class Laptop {
+    private PowerState powerState;
+
+    public Laptop(){
+        this.powerState = new Off();
+    }
+
+    public void setPowerState(PowerState powerState){
+        this.powerState = powerState;
+    }
+
+    public void powerPush(){
+        powerState.powerPush();
+    }
+}
+
+=================================================================================
+21. Iterator Pattern
+내가 알고 있는 이터레이터 구현 방식을 따른 패턴이다. 패스~!
+
+=================================================================================
+22. Mediator Pattern
+예를 들어서 생각해보는 게 나을 것 같다.
+User와 User의 상호작용에 관련된 메서드가 있다고 하자.
+예를들면 User에서 User로 메시지를 보내는 메서드인데, 이게 자체적으로 구현하면 결합도가 높아진다.
+
+그래서 다른 Mediator 클래스에 위임해서 그 클래스가 대신 일을 해주게하는 것이다.
+
+class User;
+class Mediator;
+---
+Mediator m = new Mediator();
+User a = new User("a", m);
+m.add(a);
+m.add(new User("1", m));
+m.add(new User("2", m));
+m.add(new User("3", m));
+
+a.send("hihi");    // 관건은 여기다. 전송하는 메서드는 mediator가 아닌 user 클래스에 있다.
+a.send가 동작하면 등록된 mediator m을 사용하여 전체 메시지를 보내게 된다.
+
+채팅 같은 것을 구현한다고 치면 굉장히 유용한 패턴같다.
+특히 메시징 관련해서도 활용의 여부가 많을 것 같다.
