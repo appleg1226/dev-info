@@ -1,3 +1,5 @@
+<!-- logstash-logback-encoder 를 이용하여 json 형식의 로그 폴더에 저장하는 셋팅 파일 -->
+
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <configuration>
