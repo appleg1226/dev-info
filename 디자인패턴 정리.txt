@@ -187,18 +187,16 @@ class E implements A{
 
 interface A
 
-class B implements A
-class C implements B
+class B implements A    // 이건 구체적인 클래스
+class abstract Decorator implements A   // 이건 추가 기능을 넣을 데코레이터 클래스의 틀
 
-class ADecorator implements A
-    class Deco1 extends aDecorator
-    class Deco2 extends aDecorator
-    class Deco3 extends aDecorator
+class Deco1 extends Decorator  // 데코레이터를 구체화한 실제 클래스
+class Deco2 extends Decorator  
 
-각 데코레이터 클래스들은 앞의 클래스B나 클래스C를 생성자로 받는다.
-그래서 그 B나 C들의 기능을 자신들 각자의 특성화된 기능과 통합시키는 것이다.
+각 데코레이터 클래스들은 앞의 클래스B를 생성자로 받는다.
+그래서 그 B의 기능을 자신들 각자의 특성화된 기능과 통합시키는 것이다.
 
-A newAWithTwoFunction = new  Deco1(new B());
+A newAWithTwoFunction = new Deco1(new B());
 
 위의 것을 보면, A로 선언을 했지만 실질적인 구현은 Deco1의 기능과 B의 기능이 합쳐진 것을 볼 수 있다.
 이 패턴은 생소하지만 이런 생각을 할 수 있구나라는 생각이 들어서 재미있다.
